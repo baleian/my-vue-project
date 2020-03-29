@@ -33,7 +33,7 @@ export default {
     ...mapMutations('user', { SET_USER_LIST }),
   },
 
-  async created() {
+  created() {
     this.$http.get('/api/users')
       .then(res => {
         this.SET_USER_LIST(res.data);
