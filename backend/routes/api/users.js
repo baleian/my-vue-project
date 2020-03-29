@@ -1,35 +1,111 @@
 var express = require('express');
 var router = express.Router();
 
-var USERS = [
-  {
-    "id": "8de216c69e884dbba3ddd4e866c027af", 
-    "name": "", 
-    "description": "B / 31 / 경기도 수원시 영통구 영통동"
-  },
-  {
-    "id": "d7ff1f33acec4670a9a584aa9a594fae", 
-    "name": "", 
-    "description": "A / 32 / 서울특별시 금천구 가산동"
-  },
-  {
-    "id": "428d70b032bc4a1ebde317ac47e0db5f", 
-    "name": "", 
-    "description": "B / 22 / 인천광역시 부평구 부평1동"
-  },
-  {
-    "id": "756af1f0d422429284873b8c6a5b6585", 
-    "name": "", 
-    "description": "B / 24 / 서울특별시 송파구 방이동"
-  },
-];
+function query(dbcon, query, params) {
+  return new Promise((resolve, reject) => {
+    function callback(err, results) {
+      if (err) return reject(err);
+      resolve(results);
+    }
+    if (!params) {
+      dbcon.query(query, callback);
+    } 
+    else {
+      dbcon.execute(query, params, callback);
+    }
+  });
+}
 
-router.get('/', function(req, res, next) {
-  res.send(USERS);
+router.get('/', async function(req, res, next) {
+  var userList = await query(req.dbcon,
+    `
+    SELECT user_id, user_name, description FROM user
+    `
+  );
+  res.send(userList);
 });
 
-router.get('/:id', function(req, res, next) {
+router.get('/:id', async function(req, res, next) {
+  var userId = req.params.id;
+  var userProfile = await query(req.dbcon,
+    `
+    SELECT
+      user_id, user_name, description, age, gender, region1, region2, region3
+    FROM (
+      SELECT user_id, user_name, description FROM user WHERE user_id = '${userId}'
+    ) A
+    LEFT JOIN (
+      SELECT MAX(age) AS age, gender
+      FROM user_history WHERE user_id = '${userId}'
+      ORDER BY ts DESC LIMIT 1
+    ) B ON 1 = 1
+    LEFT JOIN (
+      SELECT 
+        region1, region2, region3
+      FROM user_history
+      WHERE user_id = '${userId}' AND region1 IS NOT NULL
+      GROUP BY region1, region2, region3
+      ORDER BY COUNT(*) DESC LIMIT 1
+    ) C ON 1 = 1
+    `
+  );
+  
+  if (!userProfile || userProfile.length === 0) {
+    return res.status(404).send();
+  }
 
+  userProfile = userProfile[0];
+
+  userProfile.categories = await query(req.dbcon,
+    `
+    SELECT
+      IF(category_id = '9999', NULL, category_id) AS category_id, 
+      category_name,
+      SUM(amt) AS amt, 
+      COUNT(*) AS cnt
+    FROM (
+      SELECT 
+        COALESCE(code, '9999') AS category_id, 
+        COALESCE(name, '기타') AS category_name,
+        amt
+      FROM user_history A 
+        LEFT JOIN category_map B USING (category_id) 
+        WHERE user_id = ?
+    ) A
+    GROUP BY category_id, category_name
+    ORDER BY amt DESC
+    `,
+    [userId]
+  );
+
+  userProfile.brands = await query(req.dbcon,
+    `
+    SELECT
+      brand_id, 
+      COALESCE(brand_name, '기타') AS brand_name,
+      SUM(amt) AS amt,
+      COUNT(*) AS cnt
+    FROM user_history
+    WHERE user_id = ? 
+    GROUP BY brand_id, brand_name
+    `,
+    [userId]
+  );
+  
+  return res.send(userProfile);
+});
+
+router.put('/:id', async function(req, res, next) {
+  var userName = req.body.params.user_name || null;
+  var description = req.body.params.description || null;
+  var userId = req.params.id;
+  await query(req.dbcon,
+    `
+      UPDATE user SET user_name = ?, description = ? WHERE user_id = ?
+    `,
+    [userName, description, userId]
+  );
+  return res.status(204).send()
 });
 
 module.exports = router;
