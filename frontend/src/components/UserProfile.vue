@@ -1,10 +1,10 @@
 <template>
-  <v-container class="pa-5" fluid>
+  <v-container fluid>
     <v-row dense justify="center">
       <v-overlay :value="updating">
         <v-progress-circular indeterminate size="64"></v-progress-circular>
       </v-overlay>
-      <v-col style="min-width: 400px;">
+      <v-col class="pa-5" style="min-width: 400px;">
         <v-form>
           <v-text-field
             v-model="user.user_id"
@@ -43,7 +43,7 @@
           <v-btn color="primary" @click="updateProfile" :disabled="updating">Save</v-btn>
         </v-form>
       </v-col>
-      <v-col style="min-width: 400px;">
+      <v-col class="pa-5" style="min-width: 400px;">
         <v-text-field
           v-model="region"
           label="Region"
