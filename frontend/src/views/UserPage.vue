@@ -35,6 +35,22 @@
         </v-row>
       </v-col>
     </v-row>
+    <v-row class="my-8">
+      <v-col>
+        <v-row dense>
+          <v-col>
+            <div class="subtitle flex display-1">결제 패턴</div>
+          </v-col>
+        </v-row>
+        <v-row dense>
+          <v-col>
+            <v-sheet elevation="2">
+              <UserHistoryChart :user="user" />
+            </v-sheet>
+          </v-col>
+        </v-row>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -44,11 +60,13 @@ import { SET_USER_ID } from '@/store/modules/user';
 
 import UserProfile from '@/components/UserProfile';
 import UserChart from '@/components/UserChart';
+import UserHistoryChart from '@/components/UserHistoryChart';
+
 
 export default {
   name: 'UserPage',
 
-  components: { UserProfile, UserChart },
+  components: { UserProfile, UserChart, UserHistoryChart },
 
   data: () => ({
     overlay: false,
