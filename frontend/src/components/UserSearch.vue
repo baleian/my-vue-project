@@ -42,8 +42,8 @@ export default {
     ...mapState('user', ['userId', 'userList']),
     items() {
       return this.userList.map(user => ({
-        text: user.name || user.id,
-        value: user.id,
+        text: user.user_name || user.user_id,
+        value: user.user_id,
         description: user.description,
       }));
     },
@@ -54,18 +54,25 @@ export default {
 
   methods: {
     onChange(value) {
+      if (!value) return;
       this.$router.push(`/${value}`);
     },
     filter(item, queryText, itemText) {
       if (item.value === queryText) return true;
       if (itemText.indexOf(queryText) > -1) return true;
-      if (item.description.indexOf(queryText) > -1) return true;
+      if (item.description && item.description.indexOf(queryText) > -1) return true;
       return false;
     },
   },
 
   created() {
     this.model = this.userId;
+  },
+
+  watch: {
+    userId(to) {
+      this.model = to;
+    }
   },
 }
 </script>
