@@ -1,8 +1,8 @@
 <template>
-  <v-container class="fill-height" fluid>
-    <v-row align="center" justify="center">
-      <v-col cols="6">
-          <UserSearch solo></UserSearch>
+  <v-container style="display: flex; align-items: center; height: 100%; max-height: 1200px;">
+    <v-row justify="center">
+      <v-col align="center">
+          <UserSearch style="max-width: 650px;" solo></UserSearch>
       </v-col>
     </v-row>
   </v-container>
