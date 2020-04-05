@@ -1,33 +1,19 @@
-var express = require('express');
-var router = express.Router();
+import { Router } from 'express';
 
-function query(dbcon, query, params) {
-  return new Promise((resolve, reject) => {
-    function callback(err, results) {
-      if (err) return reject(err);
-      resolve(results);
-    }
-    if (!params) {
-      dbcon.query(query, callback);
-    } 
-    else {
-      dbcon.execute(query, params, callback);
-    }
-  });
-}
+import * as User from '../../controllers/user';
 
-router.get('/', async function(req, res, next) {
-  var userList = await query(req.dbcon,
-    `
-    SELECT user_id, user_name, description FROM user
-    `
-  );
-  res.send(userList);
-});
 
+const router = Router();
+
+router.get('/', User.getUserList);
+router.get('/:id', User.getUserProfile);
+
+export default router;
+
+/*
 router.get('/:id', async function(req, res, next) {
   var userId = req.params.id;
-  var userProfile = await query(req.dbcon,
+  var userProfile = await query(
     `
     SELECT
       user_id, user_name, description, age, gender, region1, region2, region3
@@ -56,7 +42,7 @@ router.get('/:id', async function(req, res, next) {
 
   userProfile = userProfile[0];
 
-  userProfile.categories = await query(req.dbcon,
+  userProfile.categories = await query(
     `
     SELECT
       IF(category_id = '9999', NULL, category_id) AS category_id, 
@@ -78,7 +64,7 @@ router.get('/:id', async function(req, res, next) {
     [userId]
   );
 
-  userProfile.brands = await query(req.dbcon,
+  userProfile.brands = await query(
     `
     SELECT
       brand_id, 
@@ -99,7 +85,7 @@ router.put('/:id', async function(req, res, next) {
   var userName = req.body.params.user_name || null;
   var description = req.body.params.description || null;
   var userId = req.params.id;
-  await query(req.dbcon,
+  await query(
     `
       UPDATE user SET user_name = ?, description = ? WHERE user_id = ?
     `,
@@ -109,3 +95,4 @@ router.put('/:id', async function(req, res, next) {
 });
 
 module.exports = router;
+*/
