@@ -283,7 +283,6 @@ export default {
   .marker-info-title {
     padding: 4px 4px 4px 10px;
     height: 34px;
-    z-index: 15;
     overflow-x: auto;
     overflow-y: hidden;
     background: #eee;
@@ -295,9 +294,8 @@ export default {
   .marker-info-body {
     position: relative;
     overflow: auto;
-    z-index: 20;
     padding: 5px 5px 5px 10px;
-    height: 98px;
+    height: 96px;
   }
   .marker-info ::-webkit-scrollbar {
     width: 5px;
