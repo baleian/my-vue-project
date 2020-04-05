@@ -26,7 +26,7 @@ export default {
   },
 
   created() {
-    this.SET_USER_ID(this.$route.params.userId);
+    this.SET_USER_ID(null);
   },
 }
 </script>

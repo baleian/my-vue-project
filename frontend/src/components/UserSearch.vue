@@ -42,9 +42,9 @@ export default {
     ...mapState('user', ['userId', 'userList']),
     items() {
       return this.userList.map(user => ({
-        text: user.user_name || user.user_id,
-        value: user.user_id,
-        description: user.description,
+        text: user.userName || user.userId,
+        value: user.userId,
+        description: [user.gender, user.age, user.description].filter(c => c).join(' / '),
       }));
     },
     loading() {
@@ -76,3 +76,7 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+  
+</style>

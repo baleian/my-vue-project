@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar app dense dark color="primary">
+    <v-app-bar class="z-top" app dense dark color="primary">
       <v-toolbar-title>
         <router-link to="/" style="cursor: pointer;" tag="span">Vue Tutorial</router-link>
       </v-toolbar-title>
@@ -42,6 +42,8 @@ export default {
 }
 </script>
 
-<style>
-
+<style scoped>
+  .z-top {
+    z-index: 15 !important
+  }
 </style>
