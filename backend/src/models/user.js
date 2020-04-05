@@ -34,7 +34,7 @@ export function setUser(userId, { userName, description }) {
     `
     UPDATE user SET
       user_name = ?,
-      description = ?,
+      description = ?
     WHERE user_id = ?
     `,
     [userName, description, userId]
@@ -54,8 +54,7 @@ export function getUserState(userId) {
         SUM(amt) AS amount
       FROM user_history
       WHERE user_id = ?
-    ) A 
-    JOIN state B ON B.category_id IS NULL
+    ) A JOIN state B
     `,
     [userId]
   );
@@ -68,21 +67,22 @@ export function getUserCategoryState(userId) {
       category_id AS categoryId,
       category_name AS categoryName,
       CAST(count AS SIGNED) AS count, amount,
-      user_count_avg AS userCountAverage,
-      user_amount_avg AS userAmountAverage,
-      (LOG(IF(count < 0, 0, count)) - user_count_log_avg) / user_count_log_stddev AS countZscore,
-      (LOG(IF(amount < 0, 0, amount)) - user_amount_log_avg) / user_amount_log_stddev AS amountZscore
+      IF(user_count_avg IS NULL OR user_count_avg < 0, 0, user_count_avg) AS userCountAverage,
+      IF(user_amount_avg IS NULL OR user_amount_avg < 0, 0, user_amount_avg) AS userAmountAverage,
+      IF(user_count_log_stddev IS NULL OR user_count_log_stddev <= 0, 99, (LOG(IF(count < 0, 0, count)) - user_count_log_avg) / user_count_log_stddev) AS countZscore,
+      IF(user_amount_log_stddev IS NULL OR user_amount_log_stddev <= 0, 99, (LOG(IF(amount < 0, 0, amount)) - user_amount_log_avg) / user_amount_log_stddev) AS amountZscore
     FROM (
       SELECT 
-        category_id, ANY_VALUE(category_name) AS category_name,
+        category_id, 
+        ANY_VALUE(category_name) AS category_name,
         SUM(IF(amt > 0, 1, IF(amt < 0, -1, 0))) AS count,
         SUM(amt) AS amount
       FROM user_history
       WHERE user_id = ?
       GROUP BY category_id
     ) A 
-    LEFT JOIN state B USING (category_id)
-    ORDER BY category_id
+    LEFT JOIN category_state B USING (category_id)
+    ORDER BY categoryId
     `,
     [userId]
   );
@@ -92,19 +92,25 @@ export function getUserBrandState(userId) {
   return query(
     `
     SELECT
-      brand_id AS brandId,
-      COALESCE(brand_name, '기타') AS brandName,
-      CAST(count AS SIGNED) AS count, amount
+      brand_id AS brandId, 
+      brand_name AS brandName,
+      CAST(count AS SIGNED) AS count, amount,
+      IF(user_count_avg IS NULL OR user_count_avg < 0, 0, user_count_avg) AS userCountAverage,
+      IF(user_amount_avg IS NULL OR user_amount_avg < 0, 0, user_amount_avg) AS userAmountAverage,
+      IF(user_count_log_stddev IS NULL OR user_count_log_stddev <= 0, 99, (LOG(IF(count < 0, 0, count)) - user_count_log_avg) / user_count_log_stddev) AS countZscore,
+      IF(user_amount_log_stddev IS NULL OR user_amount_log_stddev <= 0, 99, (LOG(IF(amount < 0, 0, amount)) - user_amount_log_avg) / user_amount_log_stddev) AS amountZscore
     FROM (
       SELECT 
-        brand_id, ANY_VALUE(brand_name) AS brand_name,
+        COALESCE(brand_id, 'B999999') AS brand_id, 
+        COALESCE(ANY_VALUE(brand_name), '기타') AS brand_name,
         SUM(IF(amt > 0, 1, IF(amt < 0, -1, 0))) AS count,
         SUM(amt) AS amount
       FROM user_history
       WHERE user_id = ?
       GROUP BY brand_id
     ) A
-    ORDER BY brand_id
+    LEFT JOIN brand_state B USING (brand_id)
+    ORDER BY brandId
     `,
     [userId]
   );
@@ -146,6 +152,24 @@ export function getUserCategoryHistory(userId) {
     WHERE user_id = ?
     GROUP BY DATE(CONVERT_TZ(ts, 'SYSTEM', '+09:00')), category_id
     ORDER BY date, categoryId
+    `,
+    [userId]
+  );
+}
+
+export function getUserBrandHistory(userId) {
+  return query(
+    `
+    SELECT
+      DATE_FORMAT(DATE(CONVERT_TZ(ts, 'SYSTEM', '+09:00')), '%Y-%m-%d') AS date,
+      COALESCE(brand_id, 'B999999') AS brandId,
+      COALESCE(ANY_VALUE(brand_name), '기타') AS brandName,
+      SUM(IF(amt > 0, 1, IF(amt < 0, -1, 0))) AS count,
+      SUM(amt) AS amount
+    FROM user_history
+    WHERE user_id = ?
+    GROUP BY DATE(CONVERT_TZ(ts, 'SYSTEM', '+09:00')), brand_id
+    ORDER BY date, brandId
     `,
     [userId]
   );

@@ -88,21 +88,21 @@ export default {
       var { minDate } = this.minMaxDate;
       minDate = moment(minDate);
       var grouped = this.history.reduce((prev, curr) => {
-        if (!(curr.categoryId in prev)) {
-          prev[curr.categoryId] = {
-            id: curr.categoryId,
-            name: curr.categoryName,
+        if (!(curr.id in prev)) {
+          prev[curr.id] = {
+            id: curr.id,
+            name: curr.name,
             data: Array(this.dateRange.length).fill(0),
           };
         }
-        prev[curr.categoryId].data[moment(curr.date).diff(minDate, 'day')] = curr[this.value];
+        prev[curr.id].data[moment(curr.date).diff(minDate, 'day')] = curr[this.value];
         return prev;
       }, {});
       var series = [];
       for (var k in grouped) {
         series.push(grouped[k]);
       }
-      series.sort((a, b) => a.id - b.id).map(s => { s.name, s.data });
+      series.sort((a, b) => a.id < b.id ? -1 : 1).map(s => { s.name, s.data });
       return series;
     },
   },

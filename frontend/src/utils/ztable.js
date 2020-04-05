@@ -37,6 +37,7 @@ const zTable = {
 };
 
 export function zscoreToPercentage(zscore) {
+  if (zscore === null) return 0; 
   var negative = zscore < 0;
   zscore = Math.round(Math.abs(zscore) * 100);
   if (zscore >= 350) return negative ? 0 : 1;

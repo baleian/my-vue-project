@@ -25,3 +25,17 @@ export function getUserProfile(req, res, next) {
       next(createError(500, err));
     });
 }
+
+export function setUser(req, res, next) {
+  var userId = req.params.id;
+  if (!userId) return next(createError(400));
+  var userName = req.body.userName || null;
+  var description = req.body.description || null;
+  userService.setUser(userId, { userName, description })
+    .then(result => {
+      res.send(result);
+    })
+    .catch(err => {
+      next(createError(500, err));
+    });
+}

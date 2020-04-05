@@ -56,7 +56,7 @@ export default {
         ...defaultChartOptions,
         xaxis: {
           ...defaultChartOptions.xaxis,
-          categories: this.state.map(s => s.categoryName),
+          categories: this.state.map(s => s.name),
         },
       };
     },

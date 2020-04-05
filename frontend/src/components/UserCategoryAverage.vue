@@ -1,5 +1,5 @@
 <template>
-  <apexchart :height="height || '350'" :options="chartOptions" :series="series" />
+  <apexchart v-if="visible" :height="height || '350'" :options="chartOptions" :series="series" />
 </template>
 
 <script>
@@ -39,6 +39,10 @@ export default {
     label: String,
   },
 
+  data: () => ({
+    visible: true,
+  }),
+
   computed: {
     chartOptions() {
       if (!this.state) return defaultChartOptions;
@@ -49,24 +53,29 @@ export default {
         if (prev.maxAmount < curr.userAmountAverage) prev.maxAmount = curr.userAmountAverage;
         return prev;
       }, { maxCount: 0, maxAmount: 0});
+      maxCount = maxCount < 5 ? 5 : Math.ceil(maxCount);
       return {
         ...defaultChartOptions,
         xaxis: {
           ...defaultChartOptions.xaxis,
-          categories: this.state.map(s => s.categoryName),
+          categories: this.state.map(s => s.name),
         },
         yaxis: [
           {
             seriesName: '결제 수',
             axisTicks: { show: true, },
             min: 0, max: maxCount, tickAmount: 5,
-            labels: { formatter: numberSplitFormatter },
+            labels: { formatter: v => {
+              return v.toFixed(1);
+            }},
           },
           {
             seriesName: '평균 결제 수',
             show: false,
             min: 0, max: maxCount, tickAmount: 5,
-            labels: { formatter: numberSplitFormatter },
+            labels: { formatter: v => {
+              return v.toFixed(1);
+            }},
           },
           {
             seriesName: '결제 금액',
@@ -111,6 +120,15 @@ export default {
     },
   },
 
+  watch: {
+    state() {
+      // solution of apexchart yaxis max bug
+      this.visible = false;
+      this.$nextTick(() => {
+        this.visible = true;
+      });
+    },
+  },
 }
 </script>
 

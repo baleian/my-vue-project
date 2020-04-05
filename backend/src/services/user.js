@@ -13,5 +13,10 @@ export async function getUserProfile(userId) {
   user.brandState = await userModel.getUserBrandState(userId);
   user.history = await userModel.getUserHistory(userId);
   user.categoryHistory = await userModel.getUserCategoryHistory(userId);
+  user.brandHistory = await userModel.getUserBrandHistory(userId);
   return user;
+}
+
+export async function setUser(userId, { userName, description }) {
+  await userModel.setUser(userId, { userName, description });
 }
