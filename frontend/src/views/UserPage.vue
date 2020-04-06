@@ -24,6 +24,8 @@
             </v-radio-group>
           </v-row>
         </v-card>
+      </v-row>
+      <v-row justify="center">
         <v-card class="float-left ma-2" outlined width="350" height="350">
           <UserCategoryRank :state="categoryState" />
         </v-card>
@@ -32,15 +34,13 @@
         </v-card>
       </v-row>
       <v-row justify="center">
-        <v-card class="float-left ma-2 pt-5" outlined width="350" height="350">
-          <UserCategoryRate :state="categoryState" value="count" />
+        <v-card class="float-left ma-2 pt-4" outlined width="350" height="670">
+          <UserCategoryRate class="mb-4" :state="categoryState" value="count" height="350" />
+          <UserCategoryRate :state="categoryState" value="amount" height="350" />
         </v-card>
-        <v-card class="float-left ma-2 pt-5" outlined width="350" height="350">
-          <UserCategoryRate :state="categoryState" value="amount" />
-        </v-card>
-        <v-card class="float-left ma-2" outlined width="800" height="500">
-            <UserCategoryHistory :history="categoryHistory" value="count" id="cw" group="ch" height="235" />
-            <UserCategoryHistory :history="categoryHistory" value="amount" id="aw" group="ch" height="235" />
+        <v-card class="float-left ma-2 py-2" outlined width="800" height="670">
+            <UserCategoryHistory class="mb-2" :history="categoryHistory" value="count" id="cw" group="ch" height="300" />
+            <UserCategoryHistory :history="categoryHistory" value="amount" id="aw" group="ch" height="300" />
         </v-card>
       </v-row>
     </v-sheet>
