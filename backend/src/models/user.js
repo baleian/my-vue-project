@@ -69,8 +69,8 @@ export function getUserCategoryState(userId) {
       CAST(count AS SIGNED) AS count, amount,
       IF(user_count_avg IS NULL OR user_count_avg < 0, 0, user_count_avg) AS userCountAverage,
       IF(user_amount_avg IS NULL OR user_amount_avg < 0, 0, user_amount_avg) AS userAmountAverage,
-      IF(user_count_log_stddev IS NULL OR user_count_log_stddev <= 0, 99, (LOG(IF(count < 0, 0, count)) - user_count_log_avg) / user_count_log_stddev) AS countZscore,
-      IF(user_amount_log_stddev IS NULL OR user_amount_log_stddev <= 0, 99, (LOG(IF(amount < 0, 0, amount)) - user_amount_log_avg) / user_amount_log_stddev) AS amountZscore
+      COALESCE((LOG(IF(count < 0, 0, count)) - user_count_log_avg) / user_count_log_stddev, 100) AS countZscore,
+      COALESCE((LOG(IF(amount < 0, 0, amount)) - user_amount_log_avg) / user_amount_log_stddev, 100) AS amountZscore
     FROM (
       SELECT 
         category_id, 
@@ -97,8 +97,8 @@ export function getUserBrandState(userId) {
       CAST(count AS SIGNED) AS count, amount,
       IF(user_count_avg IS NULL OR user_count_avg < 0, 0, user_count_avg) AS userCountAverage,
       IF(user_amount_avg IS NULL OR user_amount_avg < 0, 0, user_amount_avg) AS userAmountAverage,
-      IF(user_count_log_stddev IS NULL OR user_count_log_stddev <= 0, 99, (LOG(IF(count < 0, 0, count)) - user_count_log_avg) / user_count_log_stddev) AS countZscore,
-      IF(user_amount_log_stddev IS NULL OR user_amount_log_stddev <= 0, 99, (LOG(IF(amount < 0, 0, amount)) - user_amount_log_avg) / user_amount_log_stddev) AS amountZscore
+      COALESCE((LOG(IF(count < 0, 0, count)) - user_count_log_avg) / user_count_log_stddev, 100) AS countZscore,
+      COALESCE((LOG(IF(amount < 0, 0, amount)) - user_amount_log_avg) / user_amount_log_stddev, 100) AS amountZscore
     FROM (
       SELECT 
         COALESCE(brand_id, 'B999999') AS brand_id, 
