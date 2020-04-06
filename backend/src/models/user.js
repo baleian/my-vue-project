@@ -143,14 +143,14 @@ export function getUserCategoryHistory(userId) {
   return query(
     `
     SELECT
-      DATE_FORMAT(DATE(CONVERT_TZ(ts, 'SYSTEM', '+09:00')), '%Y-%m-%d') AS date,
+      DATE_FORMAT(DATE(CONVERT_TZ(ts, @@global.time_zone, 'Asia/Seoul')), '%Y-%m-%d') AS date,
       category_id AS categoryId,
       ANY_VALUE(category_name) AS categoryName,
       SUM(IF(amt > 0, 1, IF(amt < 0, -1, 0))) AS count,
       SUM(amt) AS amount
     FROM user_history
     WHERE user_id = ?
-    GROUP BY DATE(CONVERT_TZ(ts, 'SYSTEM', '+09:00')), category_id
+    GROUP BY DATE(CONVERT_TZ(ts, @@global.time_zone, 'Asia/Seoul')), category_id
     ORDER BY date, categoryId
     `,
     [userId]
@@ -161,14 +161,14 @@ export function getUserBrandHistory(userId) {
   return query(
     `
     SELECT
-      DATE_FORMAT(DATE(CONVERT_TZ(ts, 'SYSTEM', '+09:00')), '%Y-%m-%d') AS date,
+      DATE_FORMAT(DATE(CONVERT_TZ(ts, @@global.time_zone, 'Asia/Seoul')), '%Y-%m-%d') AS date,
       COALESCE(brand_id, 'B999999') AS brandId,
       COALESCE(ANY_VALUE(brand_name), '기타') AS brandName,
       SUM(IF(amt > 0, 1, IF(amt < 0, -1, 0))) AS count,
       SUM(amt) AS amount
     FROM user_history
     WHERE user_id = ?
-    GROUP BY DATE(CONVERT_TZ(ts, 'SYSTEM', '+09:00')), brand_id
+    GROUP BY DATE(CONVERT_TZ(ts, @@global.time_zone, 'Asia/Seoul')), brand_id
     ORDER BY date, brandId
     `,
     [userId]
