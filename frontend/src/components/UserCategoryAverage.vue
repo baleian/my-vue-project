@@ -1,5 +1,5 @@
 <template>
-  <apexchart v-if="visible" :height="height || '350'" :options="chartOptions" :series="series" />
+  <apexchart v-if="visible" :height="height || '100%'" :width="width || '100%'" :options="chartOptions" :series="series" />
 </template>
 
 <script>
@@ -35,6 +35,7 @@ export default {
 
   props: {
     height: String,
+    width: String,
     state: Array,
     label: String,
   },
